@@ -15,9 +15,6 @@ namespace WaterSystem
         // Singleton
         public static Water Instance;
 
-        // Script references
-        private PlanarReflections _planarReflections;
-
         private bool _useComputeBuffer;
         public bool computeOverride;
 
@@ -61,8 +58,6 @@ namespace WaterSystem
             if (found.Length == 0) return;
             Debug.Assert(found.Length == 1); // Should be one and only one.
             Instance = found[0];
-
-            GerstnerWavesJobs.Init();
         }
 
         private void OnEnable()
@@ -76,10 +71,6 @@ namespace WaterSystem
             Init();
             RenderPipelineManager.beginCameraRendering += BeginCameraRendering;
 
-            if(resources == null)
-            {
-                resources = Resources.Load("WaterResources") as WaterResources;
-            }
         }
 
         private void OnDisable() {
@@ -88,7 +79,6 @@ namespace WaterSystem
 
         private void OnApplicationQuit()
         {
-            GerstnerWavesJobs.Cleanup();
         }
 
         void Cleanup()
@@ -155,32 +145,17 @@ namespace WaterSystem
 
         public void Init()
         {
+            if(resources == null)
+            {
+                resources = Resources.Load("WaterResources") as WaterResources;
+            }
+
             SetWaves();
             GenerateColorRamp();
             if (bakedDepthTex)
             {
                 Shader.SetGlobalTexture(WaterDepthMap, bakedDepthTex);
             }
-
-            if (!gameObject.TryGetComponent(out _planarReflections))
-            {
-                _planarReflections = gameObject.AddComponent<PlanarReflections>();
-            }
-            _planarReflections.hideFlags = HideFlags.HideAndDontSave | HideFlags.HideInInspector;
-            _planarReflections.m_settings = settingsData.planarSettings;
-            _planarReflections.enabled = settingsData.refType == ReflectionType.PlanarReflection;
-
-            if(resources == null)
-            {
-                resources = Resources.Load("WaterResources") as WaterResources;
-            }
-            if(Application.platform != RuntimePlatform.WebGLPlayer) // TODO - bug with Opengl depth
-                CaptureDepthMap();
-        }
-
-        private void LateUpdate()
-        {
-            GerstnerWavesJobs.UpdateHeights();
         }
 
         public void FragWaveNormals(bool toggle)
@@ -218,21 +193,16 @@ namespace WaterSystem
                 case ReflectionType.Cubemap:
                     Shader.EnableKeyword("_REFLECTION_CUBEMAP");
                     Shader.DisableKeyword("_REFLECTION_PROBES");
-                    Shader.DisableKeyword("_REFLECTION_PLANARREFLECTION");
                     Shader.SetGlobalTexture(CubemapTexture, settingsData.cubemapRefType);
                     break;
                 case ReflectionType.ReflectionProbe:
                     Shader.DisableKeyword("_REFLECTION_CUBEMAP");
                     Shader.EnableKeyword("_REFLECTION_PROBES");
-                    Shader.DisableKeyword("_REFLECTION_PLANARREFLECTION");
-                    break;
-                case ReflectionType.PlanarReflection:
-                    Shader.DisableKeyword("_REFLECTION_CUBEMAP");
-                    Shader.DisableKeyword("_REFLECTION_PROBES");
-                    Shader.EnableKeyword("_REFLECTION_PLANARREFLECTION");
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    Shader.DisableKeyword("_REFLECTION_CUBEMAP");
+                    Shader.EnableKeyword("_REFLECTION_PROBES");
+                    break;
             }
 
             Shader.SetGlobalInt(WaveCount, _waves.Length);
