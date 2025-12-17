@@ -5,9 +5,9 @@ MonoImporter:
   serializedVersion: 2
   defaultReferences:
   - _rampTexture: {instanceID: 0}
-  - settingsData: {fileID: 11400000, guid: a4cacf74654e54b35b9eaea74fd20b4e, type: 2}
-  - surfaceData: {fileID: 11400000, guid: 846f3dc3b5341447a86687211f741bc7, type: 2}
-  - resources: {fileID: 11400000, guid: 40615c805d6e84ce7800418367985fe1, type: 2}
+  - settingsData: {fileID: 11400000, guid: 50537d760e6f4a34f95d7b08a66aad81, type: 2}
+  - surfaceData: {fileID: 11400000, guid: 66e448d2896d65944acb7d5a7e122f65, type: 2}
+  - resources: {fileID: 11400000, guid: c47f5564610149e4b95e1fb36f4969c6, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
